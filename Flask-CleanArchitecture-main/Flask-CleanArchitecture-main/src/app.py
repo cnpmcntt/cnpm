@@ -10,7 +10,7 @@ from config import SwaggerConfig
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-def create_app(): #alo
+def create_app(): 
     app = Flask(__name__) 
     Swagger(app)
     # Đăng ký blueprint trước
