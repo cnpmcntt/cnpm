@@ -11,7 +11,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__) #alo
     Swagger(app)
     # Đăng ký blueprint trước
     app.register_blueprint(todo_bp)
