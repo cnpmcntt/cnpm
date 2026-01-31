@@ -1,0 +1,209 @@
+USE master;
+GO
+
+-- 1. XÓA DATABASE CŨ NẾU TỒN TẠI (ĐỂ LÀM SẠCH LỖI)
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'IGCSE_LearningHub')
+BEGIN
+    ALTER DATABASE IGCSE_LearningHub SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE IGCSE_LearningHub;
+END
+GO
+
+-- 2. TẠO DATABASE MỚI
+CREATE DATABASE IGCSE_LearningHub;
+GO
+
+USE IGCSE_LearningHub;
+GO
+
+-- =============================================
+-- TẠO CÁC BẢNG (TABLES)
+-- =============================================
+
+-- 1. BẢNG USERS (Người dùng chung)
+CREATE TABLE Users (
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    fullname NVARCHAR(100),       -- Tên tiếng Việt
+    email VARCHAR(100) UNIQUE,    -- Email không dấu
+    password_hash VARCHAR(255),
+    role VARCHAR(20),             -- admin, teacher, student
+    created_at DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- 2. BẢNG TEACHERS (Giáo viên)
+CREATE TABLE Teachers (
+    teacher_id INT PRIMARY KEY,
+    teacher_code VARCHAR(20) UNIQUE,
+    specialization NVARCHAR(100), -- Chuyên môn (Tiếng Việt)
+    FOREIGN KEY (teacher_id) REFERENCES Users(user_id)
+);
+GO
+
+-- 3. BẢNG STUDENTS (Học sinh)
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    student_code VARCHAR(20) UNIQUE,
+    grade_level NVARCHAR(50),     -- Lớp/Trình độ (Tiếng Việt)
+    FOREIGN KEY (student_id) REFERENCES Users(user_id)
+);
+GO
+
+-- 4. BẢNG COURSE (Khóa học)
+CREATE TABLE Course (
+    course_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),          -- Tên khóa học (Tiếng Việt)
+    description NVARCHAR(MAX),    -- Mô tả (Tiếng Việt)
+    price FLOAT,
+    status VARCHAR(20) DEFAULT 'active',
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES Teachers(teacher_id)
+);
+GO
+
+-- 5. BẢNG LESSON (Bài học)
+CREATE TABLE Lesson (
+    lesson_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),          -- Tên bài học
+    content NVARCHAR(MAX),        -- Nội dung bài học (HTML/Text)
+    course_id INT,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+GO
+
+-- 6. BẢNG QUIZ (Bài kiểm tra trắc nghiệm)
+CREATE TABLE Quiz (
+    quiz_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    duration INT,                 -- Thời gian làm bài (phút)
+    
+    course_id INT,                -- Link tới khóa học
+    lesson_id INT,                -- Link tới bài học cụ thể
+    
+    FOREIGN KEY (course_id) REFERENCES Course(course_id),
+    FOREIGN KEY (lesson_id) REFERENCES Lesson(lesson_id)
+);
+GO
+
+-- 7. BẢNG QUESTION (Câu hỏi trắc nghiệm)
+CREATE TABLE Question (
+    question_id INT IDENTITY(1,1) PRIMARY KEY,
+    quiz_id INT,
+    content NVARCHAR(MAX),        -- Nội dung câu hỏi
+    question_type VARCHAR(20),    -- single_choice, multiple_choice
+    
+    -- Các đáp án (Tiếng Việt)
+    option_a NVARCHAR(200), 
+    option_b NVARCHAR(200), 
+    option_c NVARCHAR(200), 
+    option_d NVARCHAR(200),
+    
+    correct_answer VARCHAR(10),   -- A, B, C hoặc D
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id)
+);
+GO
+
+-- 8. BẢNG ASSIGNMENT (Bài tập tự luận về nhà)
+CREATE TABLE Assignment (
+    assignment_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    max_score FLOAT,
+    content NVARCHAR(MAX),        -- <--- QUAN TRỌNG: Cột chứa đề bài (đã thêm)
+    course_id INT,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+GO
+
+-- 9. BẢNG SUBMISSION (Nộp bài tự luận - Có hỗ trợ AI)
+CREATE TABLE Submission (
+    submission_id INT IDENTITY(1,1) PRIMARY KEY,
+    assignment_id INT,
+    student_id INT,
+    
+    answer NVARCHAR(MAX),         -- Bài làm của học sinh
+    
+    ai_score FLOAT,               -- Điểm do AI chấm
+    teacher_score FLOAT,          -- Điểm chính thức (GV chốt)
+    teacher_feedback NVARCHAR(MAX), -- Lời phê (GV hoặc AI)
+    graded_by VARCHAR(20),        -- Ai chấm? (AI_Bot hay Teacher)
+    
+    submitted_at DATETIME DEFAULT GETDATE(),
+    
+    FOREIGN KEY (assignment_id) REFERENCES Assignment(assignment_id),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id)
+);
+GO
+
+-- 10. BẢNG QUIZ SUBMISSION (Kết quả thi trắc nghiệm)
+CREATE TABLE QuizSubmission (
+    submission_id INT IDENTITY(1,1) PRIMARY KEY,
+    quiz_id INT,
+    student_id INT,               -- Link tới Users(user_id)
+    score FLOAT,
+    submitted_at DATETIME DEFAULT GETDATE(),
+    
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id),
+    FOREIGN KEY (student_id) REFERENCES Users(user_id) 
+);
+GO
+
+-- 11. BẢNG PAYMENT (Thanh toán)
+CREATE TABLE Payment (
+    payment_id INT IDENTITY(1,1) PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    amount FLOAT,
+    payment_date DATETIME DEFAULT GETDATE(),
+    status VARCHAR(20),           -- paid, pending
+    
+    FOREIGN KEY (student_id) REFERENCES Students(student_id),
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+GO
+
+-- 12. BẢNG NOTIFICATION (Thông báo)
+CREATE TABLE Notification (
+    notification_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT,
+    message NVARCHAR(300),        -- Nội dung thông báo
+    created_at DATETIME DEFAULT GETDATE(),
+    is_read BIT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+GO
+
+-- =============================================
+-- TẠO DỮ LIỆU MẪU (SEED DATA)
+-- Lưu ý: Dùng chữ N trước chuỗi tiếng Việt
+-- =============================================
+
+-- 1. Tạo Users
+INSERT INTO Users (fullname, email, password_hash, role) VALUES 
+(N'Quản Trị Viên', 'admin@igcse.com', '123', 'admin'),
+(N'Thầy Nguyễn Văn Chiến', 'math@igcse.com', '123', 'teacher'),
+(N'Châu Thụy Mỹ Uyên', 'myuyen22706@gmail.com', '123', 'student');
+
+-- 2. Tạo Profile
+INSERT INTO Teachers (teacher_id, teacher_code, specialization) VALUES (2, 'GV01', N'Toán Học IGCSE');
+INSERT INTO Students (student_id, student_code, grade_level) VALUES (3, 'HS01', N'Lớp 10');
+
+-- 3. Tạo Khóa học mẫu
+INSERT INTO Course (title, description, price, teacher_id) VALUES 
+(N'Toán IGCSE Cơ Bản', N'Khóa học dành cho người mất gốc.', 150, 2);
+
+-- 4. Tạo Bài học mẫu
+INSERT INTO Lesson (title, content, course_id) VALUES 
+(N'Chương 1: Giới thiệu Đại Số', N'Nội dung bài học về số học và biến số...', 1);
+
+-- 5. Tạo Quiz mẫu
+INSERT INTO Quiz (title, duration, course_id, lesson_id) VALUES
+(N'Kiểm tra 15 phút', 15, 1, 1);
+
+-- 6. Tạo Câu hỏi mẫu
+INSERT INTO Question (quiz_id, content, question_type, option_a, option_b, option_c, option_d, correct_answer) VALUES
+(1, N'1 + 1 bằng mấy?', 'single_choice', N'Một', N'Hai', N'Ba', N'Bốn', 'B');
+
+-- 7. Tạo Bài tập về nhà mẫu (Có đề bài content)
+INSERT INTO Assignment (title, max_score, content, course_id) VALUES
+(N'Bài tập về nhà số 1', 10, N'Hãy viết một đoạn văn ngắn giải thích định lýn Pythagoras.', 1);
+GO
