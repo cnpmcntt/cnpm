@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-primary fw-bold mb-0">{{ course.title }}</h2>
+        <span class="text-muted">Quản lý bài học và bài kiểm tra</span>
+    </div>
+    <a href="/teacher" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Quay lại Dashboard</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="m-0 fw-bold text-success"><i class="fas fa-layer-group"></i> Nội dung khóa học</h5>
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+                    <i class="fas fa-plus"></i> Thêm Bài Học
+                </button>
+            </div>
+            <div class="card-body">
+                
+                <div class="accordion" id="accordionLessons">
+                    {% for lesson in course.lessons %}
+                    <div class="accordion-item mb-2 border rounded">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#lesson{{ lesson.lesson_id }}">
+                                <span class="badge bg-primary me-2">Bài {{ loop.index }}</span> {{ lesson.title }}
+                            </button>
+                        </h2>
+                        <div id="lesson{{ lesson.lesson_id }}" class="accordion-collapse collapse" data-bs-parent="#accordionLessons">
+                            <div class="accordion-body bg-light">
+                                
+                                <div class="d-flex justify-content-between align-items-start mb-2 border-bottom pb-2">
+                                    <label class="small text-muted fw-bold text-uppercase mt-1">Nội dung bài giảng</label>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-warning" 
+                                                title="Sửa bài học"
+                                                onclick="openEditLessonModal('{{ lesson.lesson_id }}', `{{ lesson.title }}`, `{{ lesson.content }}`)">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+
+                                        <form action="/teacher/delete_lesson" method="post" onsubmit="return confirm('CẢNH BÁO: Xóa bài học này sẽ xóa luôn tất cả Quiz bên trong!\nBạn có chắc chắn muốn xóa không?');">
+                                            <input type="hidden" name="lesson_id" value="{{ lesson.lesson_id }}">
+                                            <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa bài học">
+                                                <i class="fas fa-trash-alt"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 p-3 bg-white rounded border">
+                                    <p class="mb-0" style="white-space: pre-line;">{{ lesson.content }}</p>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                                        <h6 class="text-danger m-0 fw-bold"><i class="fas fa-tasks"></i> Bài Quiz</h6>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="openQuizModal('{{ lesson.lesson_id }}', `{{ lesson.title }}`)">
+                                            <i class="fas fa-plus-circle"></i> Thêm Quiz
+                                        </button>
+                                    </div>
+
+                                    {% if lesson.quizzes %}
+                                        <div class="list-group">
+                                            {% for quiz in lesson.quizzes %}
+                                            <div class="list-group-item list-group-item-action bg-white">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <a href="/teacher/quiz/{{ quiz.quiz_id }}" class="text-decoration-none text-dark flex-grow-1">
+                                                        <i class="far fa-check-square text-danger me-2"></i> 
+                                                        <span class="fw-bold">{{ quiz.title }}</span>
+                                                        <small class="text-muted ms-2">({{ quiz.duration }} phút)</small>
+                                                    </a>
+                                                    
+                                                    <div class="d-flex gap-2">
+                                                        <button class="btn btn-sm btn-outline-warning border-0" 
+                                                                title="Sửa tên Quiz"
+                                                                onclick="openEditQuizModal('{{ quiz.quiz_id }}', `{{ quiz.title }}`, '{{ quiz.duration }}')">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+
+                                                        <form action="/teacher/delete_quiz" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài Quiz này không?');">
+                                                            <input type="hidden" name="quiz_id" value="{{ quiz.quiz_id }}">
+                                                            <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Xóa Quiz">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <a href="/teacher/quiz/{{ quiz.quiz_id }}" class="btn btn-sm btn-outline-primary border-0" title="Soạn câu hỏi">
+                                                            <i class="fas fa-list-ol"></i> Câu hỏi
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted small fst-italic">Chưa có bài quiz nào trong bài học này.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">Chưa có bài học nào. Hãy thêm bài học đầu tiên!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="m-0"><i class="fas fa-info-circle"></i> Thông tin</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Giá:</span><span class="fw-bold text-success">${{ course.price }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Bài học:</span><span class="fw-bold">{{ course.lessons|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Học viên:</span><span class="fw-bold">{{ course.payments|length }}</span>
+                    </li>
+                </ul>
+
+                <button type="button" class="btn btn-warning w-100 fw-bold text-dark shadow-sm" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                    <i class="fas fa-bullhorn"></i> Gửi thông báo cho lớp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addLessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/teacher/add_lesson" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Thêm Bài Học Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                    <div class="mb-3"><label>Tiêu đề</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label>Nội dung</label><textarea name="content" class="form-control" rows="5" required></textarea></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-success">Lưu</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/teacher/add_quiz" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Thêm Quiz vào: <span id="targetLessonName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                    <input type="hidden" name="lesson_id" id="targetLessonId">
+                    <div class="mb-3"><label>Tên Quiz</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label>Thời gian (phút)</label><input type="number" name="duration" class="form-control" value="15" required></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-danger">Lưu</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editLessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/teacher/update_lesson" method="post">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Sửa Bài Học</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                    <input type="hidden" name="lesson_id" id="editLessonId">
+                    <div class="mb-3"><label>Tiêu đề</label><input type="text" name="title" id="editLessonTitle" class="form-control" required></div>
+                    <div class="mb-3"><label>Nội dung</label><textarea name="content" id="editLessonContent" class="form-control" rows="5" required></textarea></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-warning">Cập nhật</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/teacher/update_quiz" method="post">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Sửa Thông Tin Quiz</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                    <input type="hidden" name="quiz_id" id="editQuizId">
+                    <div class="mb-3"><label>Tên Quiz</label><input type="text" name="title" id="editQuizTitle" class="form-control" required></div>
+                    <div class="mb-3"><label>Thời gian (phút)</label><input type="number" name="duration" id="editQuizDuration" class="form-control" required></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-warning">Cập nhật</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="notificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/teacher/send_notification" method="post">
+                <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title text-dark fw-bold"><i class="fas fa-envelope"></i> Gửi thông báo đến học viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle"></i> Tin nhắn này sẽ được gửi đến tất cả <strong>{{ course.payments|length }}</strong> học sinh đã mua khóa học.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội dung tin nhắn:</label>
+                        <textarea name="message" class="form-control" rows="4" placeholder="Ví dụ: Các em nhớ làm bài tập về nhà số 2 trước thứ Sáu nhé!" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Gửi ngay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openQuizModal(lessonId, lessonTitle) {
+        document.getElementById('targetLessonId').value = lessonId;
+        document.getElementById('targetLessonName').innerText = lessonTitle;
+        new bootstrap.Modal(document.getElementById('addQuizModal')).show();
+    }
+    function openEditLessonModal(id, title, content) {
+        document.getElementById('editLessonId').value = id;
+        document.getElementById('editLessonTitle').value = title;
+        document.getElementById('editLessonContent').value = content;
+        new bootstrap.Modal(document.getElementById('editLessonModal')).show();
+    }
+    function openEditQuizModal(id, title, duration) {
+        document.getElementById('editQuizId').value = id;
+        document.getElementById('editQuizTitle').value = title;
+        document.getElementById('editQuizDuration').value = duration;
+        new bootstrap.Modal(document.getElementById('editQuizModal')).show();
+    }
+</script>
+{% endblock %}
