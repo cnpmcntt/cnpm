@@ -1,0 +1,172 @@
+USE master;
+GO
+
+-- 1. XÓA DB CŨ
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'IGCSE_LearningHub')
+BEGIN
+    ALTER DATABASE IGCSE_LearningHub SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE IGCSE_LearningHub;
+END
+GO
+
+-- 2. TẠO DB MỚI
+CREATE DATABASE IGCSE_LearningHub;
+GO
+
+USE IGCSE_LearningHub;
+GO
+
+-- 3. TẠO CÁC BẢNG (Bao gồm bảng QuizAnswer bị thiếu trước đó)
+CREATE TABLE Users (
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    fullname NVARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    password_hash VARCHAR(255),
+    role VARCHAR(20),
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Teachers (
+    teacher_id INT PRIMARY KEY,
+    teacher_code VARCHAR(20) UNIQUE,
+    specialization NVARCHAR(100),
+    FOREIGN KEY (teacher_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE Parents (
+    parent_id INT PRIMARY KEY,
+    phone_number VARCHAR(20),
+    FOREIGN KEY (parent_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    student_code VARCHAR(20) UNIQUE,
+    grade_level NVARCHAR(50),
+    parent_id INT,
+    FOREIGN KEY (student_id) REFERENCES Users(user_id),
+    FOREIGN KEY (parent_id) REFERENCES Parents(parent_id)
+);
+
+CREATE TABLE Course (
+    course_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    description NVARCHAR(MAX),
+    price FLOAT,
+    status VARCHAR(20) DEFAULT 'active',
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES Teachers(teacher_id)
+);
+
+CREATE TABLE Lesson (
+    lesson_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    content NVARCHAR(MAX),
+    course_id INT,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+
+CREATE TABLE Quiz (
+    quiz_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    duration INT,
+    course_id INT,
+    lesson_id INT,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id),
+    FOREIGN KEY (lesson_id) REFERENCES Lesson(lesson_id)
+);
+
+CREATE TABLE Question (
+    question_id INT IDENTITY(1,1) PRIMARY KEY,
+    quiz_id INT,
+    content NVARCHAR(MAX),
+    question_type VARCHAR(20),
+    option_a NVARCHAR(200), option_b NVARCHAR(200), option_c NVARCHAR(200), option_d NVARCHAR(200),
+    correct_answer VARCHAR(10),
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id)
+);
+
+CREATE TABLE Assignment (
+    assignment_id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200),
+    max_score FLOAT,
+    content NVARCHAR(MAX),
+    course_id INT,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+
+CREATE TABLE Submission (
+    submission_id INT IDENTITY(1,1) PRIMARY KEY,
+    assignment_id INT,
+    student_id INT,
+    answer NVARCHAR(MAX),
+    ai_score FLOAT,
+    teacher_score FLOAT,
+    teacher_feedback NVARCHAR(MAX),
+    graded_by VARCHAR(20),
+    submitted_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (assignment_id) REFERENCES Assignment(assignment_id),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id)
+);
+
+-- BẢNG LƯU ĐIỂM QUIZ
+CREATE TABLE QuizSubmission (
+    submission_id INT IDENTITY(1,1) PRIMARY KEY,
+    quiz_id INT,
+    student_id INT,
+    score FLOAT,
+    submitted_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id) 
+);
+
+-- BẢNG LƯU CHI TIẾT CÂU TRẢ LỜI (MỚI THÊM)
+CREATE TABLE QuizAnswer (
+    answer_id INT IDENTITY(1,1) PRIMARY KEY,
+    submission_id INT,
+    question_id INT,
+    selected_option NVARCHAR(10),
+    is_correct BIT,
+    FOREIGN KEY (submission_id) REFERENCES QuizSubmission(submission_id),
+    FOREIGN KEY (question_id) REFERENCES Question(question_id)
+);
+
+CREATE TABLE Payment (
+    payment_id INT IDENTITY(1,1) PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    amount FLOAT,
+    payment_date DATETIME DEFAULT GETDATE(),
+    status VARCHAR(20),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id),
+    FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+
+CREATE TABLE Notification (
+    notification_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT,
+    message NVARCHAR(MAX),
+    created_at DATETIME DEFAULT GETDATE(),
+    is_read BIT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+GO
+
+-- 4. TẠO DỮ LIỆU MẪU
+INSERT INTO Users (fullname, email, password_hash, role) VALUES 
+(N'Quản Trị Viên', 'admin@igcse.com', '123', 'admin'),
+(N'Thầy Nguyễn Văn Toán', 'math@igcse.com', '123', 'teacher'),
+(N'Trò Trần Alice', 'alice@student.com', '123', 'student'),
+(N'Quản Lý Đào Tạo', 'manager@igcse.com', '123', 'manager'),
+(N'Phụ Huynh Alice', 'parent@igcse.com', '123', 'parent');
+
+INSERT INTO Teachers (teacher_id, teacher_code, specialization) VALUES (2, 'GV01', N'Toán Học IGCSE');
+INSERT INTO Parents (parent_id, phone_number) VALUES (5, '0909123456');
+INSERT INTO Students (student_id, student_code, grade_level, parent_id) VALUES (3, 'HS01', N'Lớp 10', 5);
+
+INSERT INTO Course (title, description, price, teacher_id) VALUES (N'Toán IGCSE Cơ Bản', N'Khóa học cơ bản', 150, 2);
+INSERT INTO Payment (student_id, course_id, amount, status) VALUES (3, 1, 150, 'paid');
+INSERT INTO Quiz (title, duration, course_id) VALUES (N'Kiểm tra 15 phút', 15, 1);
+INSERT INTO Question (quiz_id, content, question_type, option_a, option_b, option_c, option_d, correct_answer) 
+VALUES (1, N'1 + 1 = ?', 'single_choice', N'1', N'2', N'3', N'4', 'B');
+GO
