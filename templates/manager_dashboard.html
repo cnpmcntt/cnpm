@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .stat-card {
+        position: relative;
+        overflow: hidden; 
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        border: none;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+
+    .stat-icon-bg {
+        position: absolute;
+        bottom: -15px;
+        right: 10px;
+        font-size: 100px; 
+        opacity: 0.15;   
+        transform: rotate(-15deg); 
+        pointer-events: none; 
+        color: #fff;
+    }
+
+    .stat-value { font-size: 2.5rem; font-weight: 800; line-height: 1.2; }
+    .stat-label { font-size: 1rem; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;}
+
+    .modern-table thead th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        border-bottom: 2px solid #e9ecef;
+        padding: 15px;
+    }
+    .modern-table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        color: #333;
+        font-size: 0.95rem;
+    }
+    .course-title-col { font-weight: 600; color: #2d3436; }
+    
+    .badge-teacher {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+    .badge-no-teacher {
+        background-color: #ffebee;
+        color: #c62828;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+    }
+
+    .btn-add-course {
+        background: #2d3436; color: white; border-radius: 50px;
+        padding: 10px 25px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border: none; transition: all 0.2s;
+    }
+    .btn-add-course:hover { background: #000; transform: translateY(-2px); color: white; }
+</style>
+
+{% if request.query_params.get('msg') == 'course_created' %}
+<div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+    <i class="fas fa-check-circle me-2"></i> Thêm khóa học mới thành công!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Manager Dashboard</h3>
+        <p class="text-muted mb-0">Quản lý nội dung và thống kê hệ thống.</p>
+    </div>
+    <button class="btn btn-add-course" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+        <i class="fas fa-plus-circle me-2"></i> Thêm Khóa Học
+    </button>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="stat-card bg-gradient-primary">
+            <div class="stat-value">{{ stats.total_courses }}</div>
+            <div class="stat-label">Tổng Khóa Học</div>
+            <i class="fas fa-book-open stat-icon-bg"></i>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="stat-card bg-gradient-success">
+            <div class="stat-value">{{ stats.total_lessons }}</div>
+            <div class="stat-label">Tổng Bài Học</div>
+            <i class="fas fa-layer-group stat-icon-bg"></i>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="stat-card bg-gradient-warning">
+            <div class="stat-value">{{ stats.total_quizzes }}</div>
+            <div class="stat-label">Tổng Quiz</div>
+            <i class="fas fa-question-circle stat-icon-bg"></i>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+        <h5 class="fw-bold m-0 text-dark"><i class="fas fa-list me-2 text-primary"></i>Danh Sách Khóa Học</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table modern-table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 50px;">ID</th>
+                    <th>Tên khóa học</th>
+                    <th>Giáo viên phụ trách</th>
+                    <th>Giá</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td class="text-center fw-bold text-muted">#{{ course.course_id }}</td>
+                    <td class="course-title-col">{{ course.title }}</td>
+                    <td>
+                        {% if course.teacher and course.teacher.user %}
+                            <div class="badge-teacher">
+                                <i class="fas fa-user-tie me-2"></i> {{ course.teacher.user.fullname }}
+                            </div>
+                        {% else %}
+                            <div class="badge-no-teacher">
+                                <i class="fas fa-exclamation-circle me-1"></i> Chưa gán
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold text-success">${{ course.price }}</td>
+                    <td class="text-end">
+                        <a href="/manager/courses/{{ course.course_id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                            Chi tiết <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">Chưa có khóa học nào được tạo.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <form action="/manager/courses/add" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-plus-square me-2"></i>Tạo Khóa Học Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tên khóa học <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" required placeholder="VD: Lập trình Python cơ bản">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Mô tả ngắn <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control" rows="3" required placeholder="Nội dung chính của khóa học..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-secondary">Giá ($) <span class="text-danger">*</span></label>
+                            <input type="number" name="price" class="form-control" required min="0" value="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-secondary">Giáo Viên <span class="text-danger">*</span></label>
+                            <select name="teacher_id" class="form-select" required>
+                                <option value="" disabled selected>-- Chọn GV --</option>
+                                {% for teacher in teachers %}
+                                    <option value="{{ teacher.teacher_id }}">
+                                        {{ teacher.user.fullname }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-light text-secondary fw-bold" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Xác Nhận Tạo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

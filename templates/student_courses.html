@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-4">
+    <a href="/student" class="text-decoration-none text-muted fw-bold small">
+        <i class="fas fa-arrow-left me-1"></i> Quay lại Dashboard
+    </a>
+</div>
+
+<div class="text-center mb-5">
+    <h2 class="fw-bold">Thư Viện Khóa Học</h2>
+    <p class="text-muted">Chọn khóa học bạn muốn đăng ký.</p>
+</div>
+
+{% if request.query_params.get('msg') == 'need_buy' %}
+<div class="alert alert-warning text-center">
+    <i class="fas fa-exclamation-triangle me-2"></i> Bạn cần mua khóa học này trước khi vào học!
+</div>
+{% endif %}
+
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+            <div style="height: 120px; background: #e9ecef; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-graduation-cap fa-3x text-white"></i>
+            </div>
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-info bg-opacity-10 text-info">IGCSE</span>
+                    <span class="fw-bold text-success">${{ course.price }}</span>
+                </div>
+                <h6 class="fw-bold text-dark mb-3">{{ course.title }}</h6>
+                
+                <div class="mt-auto">
+                    {% if course.course_id in paid_ids %}
+                        <a href="/student/learn/{{ course.course_id }}" class="btn btn-light text-muted w-100 fw-bold border" style="pointer-events: none;">
+                            <i class="fas fa-check me-1"></i> Đã Sở Hữu
+                        </a>
+                    {% else %}
+                        <form action="/student/course/buy" method="post">
+                            <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill" onclick="return confirm('Mua khóa học này với giá ${{ course.price }}?')">
+                                Mua Ngay <i class="fas fa-cart-plus ms-1"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

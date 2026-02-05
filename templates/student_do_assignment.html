@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    <div class="mb-3">
+        <a href="/student/learn/{{ assign.course_id }}" class="text-decoration-none text-muted fw-bold small">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại Khóa học
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 mb-4 rounded-4">
+        <h3 class="fw-bold text-primary">{{ assign.title }}</h3>
+        <p class="fw-bold text-muted">Điểm tối đa: {{ assign.max_score }}</p>
+        <hr>
+        <div class="bg-light p-3 rounded-3">
+            <h6 class="fw-bold text-dark">Đề bài:</h6>
+            <p class="mb-0">{{ assign.content }}</p>
+        </div>
+    </div>
+
+    {% if submission %}
+        <div class="alert alert-success rounded-3 shadow-sm">
+            <h5 class="fw-bold"><i class="fas fa-check-circle me-2"></i> Bài làm đã được nộp!</h5>
+            <div class="bg-white p-3 rounded border mt-2">
+                {{ submission.answer }}
+            </div>
+            <div class="mt-3">
+                {% if submission.teacher_score is not none %}
+                    <span class="badge bg-success fs-6">Điểm giáo viên: {{ submission.teacher_score }}</span>
+                    {% if submission.teacher_feedback %}
+                    <div class="mt-2 text-success fw-bold">Lời phê: {{ submission.teacher_feedback }}</div>
+                    {% endif %}
+                {% else %}
+                    <span class="badge bg-warning text-dark">Đang chờ giáo viên chấm...</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <button class="btn btn-outline-secondary btn-sm mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#resubmitForm">
+            Nộp lại bài làm khác
+        </button>
+        <div class="collapse mt-3" id="resubmitForm">
+            <form action="/student/assignment/submit" method="post">
+                <input type="hidden" name="assignment_id" value="{{ assign.assignment_id }}">
+                <textarea name="answer" class="form-control mb-3" rows="5" required>{{ submission.answer }}</textarea>
+                <button type="submit" class="btn btn-primary fw-bold">Cập Nhật Bài Làm</button>
+            </form>
+        </div>
+
+    {% else %}
+        <div class="card border-0 shadow-sm p-4 rounded-4">
+            <h5 class="fw-bold mb-3">Bài làm của bạn</h5>
+            <form action="/student/assignment/submit" method="post">
+                <input type="hidden" name="assignment_id" value="{{ assign.assignment_id }}">
+                <textarea name="answer" class="form-control mb-3" rows="6" placeholder="Nhập câu trả lời của bạn tại đây..." required></textarea>
+                <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
+                    <i class="fas fa-paper-plane me-2"></i> Nộp Bài Cho Giáo Viên
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

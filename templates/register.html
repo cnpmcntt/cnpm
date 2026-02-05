@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body { background-color: #f5f5f5; background-image: none !important; }
+    .navbar a[href="/login"] { display: none !important; }
+    
+    .register-container {
+        min-height: 85vh; 
+        display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .register-card {
+        background: white; border-radius: 20px; padding: 40px;
+        width: 100%; max-width: 450px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center;
+    }
+    .register-title { font-weight: 800; font-size: 24px; margin-bottom: 5px; color: #333; letter-spacing: 1px; }
+    .register-subtitle { font-size: 13px; color: #6c757d; margin-bottom: 25px; }
+    .form-control {
+        border-radius: 10px; padding: 12px 15px; border: 1px solid #eee;
+        background-color: #fafafa; font-size: 14px; margin-bottom: 15px; transition: all 0.3s;
+    }
+    .form-control:focus { background-color: #fff; box-shadow: 0 0 0 3px rgba(123, 228, 149, 0.2); border-color: #7BE495; }
+    .form-label { text-align: left; display: block; font-weight: 700; font-size: 13px; color: #444; margin-bottom: 5px; margin-left: 2px; }
+    .btn-register {
+        background-color: #4b6cb7; 
+        border: none; color: white; font-weight: 800; padding: 14px; border-radius: 30px;
+        width: 100%; text-transform: uppercase; font-size: 14px; letter-spacing: 1.5px;
+        margin-top: 10px; box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        transition: transform 0.2s, background 0.2s;
+    }
+    .btn-register:hover { background-color: #3b5998; transform: translateY(-2px); }
+</style>
+
+<div class="register-container">
+    <div class="register-card">
+        <h2 class="register-title">CREATE ACCOUNT</h2>
+        <div class="register-subtitle">
+            Already have an account? <a href="/login" style="color: #333; font-weight: 600;">Log in</a>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger py-2 small rounded-3 mb-3">{{ error }}</div>
+        {% endif %}
+
+        <form action="/register" method="post">
+            <div class="text-start">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="fullname" class="form-control" required value="{{ fullname if fullname else '' }}">
+            </div>
+
+            <div class="text-start">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required value="{{ email if email else '' }}">
+            </div>
+            
+            <div class="text-start">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <div class="text-start">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="confirm_password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn-register">Sign Up</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

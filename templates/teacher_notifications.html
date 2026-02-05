@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="/teacher" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left"></i> Quay lại Dashboard</a>
+            <h3 class="fw-bold text-dark mt-2">Hộp Thư Thông Báo</h3>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+    </div>
+
+    <div class="list-group shadow-sm">
+        {% for notif in notifications %}
+        <div class="list-group-item list-group-item-action p-4 border-start border-5 {% if 'CẢNH BÁO' in notif.message %}border-warning{% else %}border-info{% endif %}">
+            <div class="d-flex w-100 justify-content-between mb-2">
+                <h6 class="mb-1 fw-bold text-dark">
+                    {% if 'CẢNH BÁO' in notif.message %}
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i> Tin Từ Quản Lý
+                    {% else %}
+                        <i class="fas fa-info-circle text-info me-2"></i> Thông Báo Hệ Thống
+                    {% endif %}
+                </h6>
+                <small class="text-muted">{{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+            </div>
+            
+            <p class="mb-1 text-secondary" style="font-size: 0.95rem;">{{ notif.message }}</p>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="far fa-bell-slash fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Bạn chưa có thông báo nào.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

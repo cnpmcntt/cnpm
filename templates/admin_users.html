@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .nav-tabs-custom { border-bottom: 2px solid #f0f0f0; margin-bottom: 30px; display: flex; padding-left: 0; list-style: none; }
+    .nav-item-custom { margin-right: 30px; padding-bottom: 10px; color: #888; font-weight: 500; cursor: pointer; text-decoration: none; position: relative; transition: color 0.3s; }
+    .nav-item-custom:hover { color: #333; }
+    .nav-item-custom.active { color: #2563eb; font-weight: 600; }
+    .nav-item-custom.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 2px; background-color: #2563eb; }
+    
+    .modern-user-card { background: white; border-radius: 12px; padding: 16px 24px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f1f1; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; }
+    .modern-user-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-color: #e5e7eb; }
+    
+    .avatar-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; margin-right: 15px; font-size: 1.1rem; flex-shrink: 0; }
+    
+    .badge-role { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; min-width: 80px; text-align: center; }
+    .role-admin { background-color: #fee2e2; color: #b91c1c; }   
+    .role-manager { background-color: #e0e7ff; color: #4338ca; } 
+    .role-teacher { background-color: #dbeafe; color: #1e40af; } 
+    .role-student { background-color: #d1fae5; color: #047857; } 
+    .role-parent { background-color: #ffedd5; color: #c2410c; }  
+    
+    .bg-admin { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .bg-manager { background: linear-gradient(135deg, #6366f1, #4338ca); }
+    .bg-teacher { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+    .bg-student { background: linear-gradient(135deg, #10b981, #047857); }
+    .bg-parent { background: linear-gradient(135deg, #f97316, #c2410c); }
+    
+    .btn-icon { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: none; background: transparent; cursor: pointer; }
+    .btn-edit { color: #64748b; }
+    .btn-edit:hover { background-color: #e0f2fe; color: #0284c7; }
+    .btn-delete { color: #9ca3af; }
+    .btn-delete:hover { background-color: #fee2e2; color: #ef4444; }
+</style>
+
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">Quản Lý Hệ Thống</h2>
+        <p class="text-muted mb-0">Theo dõi tài chính và phân quyền người dùng.</p>
+    </div>
+    <div class="text-end">
+        <div class="bg-white px-4 py-2 rounded-pill shadow-sm border text-muted fw-bold">
+            <i class="fas fa-users me-2 text-primary"></i> Tổng user: <span class="text-dark">{{ users|length }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="nav-tabs-custom">
+    <a href="/admin/financials" class="nav-item-custom"><i class="fas fa-chart-pie me-2"></i>Tài Chính</a>
+    <a href="/admin/users" class="nav-item-custom active"><i class="fas fa-users-cog me-2"></i>Người Dùng</a>
+    <a href="/admin/settings" class="nav-item-custom"><i class="fas fa-sliders-h me-2"></i>Cấu Hình</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
+                   placeholder="Nhập tên hoặc email để tìm ngay..." 
+                   value="{{ search_query }}">
+        </div>
+        <div id="loadingIndicator" class="small text-primary mt-2" style="display: none;">
+            <i class="fas fa-spinner fa-spin me-1"></i> Đang tìm kiếm...
+        </div>
+    </div>
+</div>
+
+{% if request.query_params.get('msg') == 'updated' %}
+<div class="alert alert-success py-2 small mb-4 rounded-3"><i class="fas fa-check-circle me-2"></i>Cập nhật thành công!</div>
+{% endif %}
+{% if request.query_params.get('error') == 'CannotChangeSelf' %}
+<div class="alert alert-danger py-2 small mb-4 rounded-3"><i class="fas fa-ban me-2"></i>Bạn không thể tự đổi quyền của chính mình!</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12" id="userListContainer">
+        
+        {% if users|length == 0 %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-search fa-3x mb-3 text-secondary opacity-25"></i>
+                <p>Không tìm thấy người dùng nào khớp với từ khóa.</p>
+            </div>
+        {% else %}
+        
+            {% for u in users %}
+            <div class="modern-user-card">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-{{ u.role }}">
+                        {{ u.fullname[0] | upper }}
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark fs-6">{{ u.fullname }}</h6>
+                        <span class="text-muted small">{{ u.email }}</span>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge-role role-{{ u.role }}">
+                        {{ u.role }}
+                    </span>
+                    
+                    <div class="d-flex align-items-center gap-1">
+                        {% if u.role != 'admin' %}
+                        
+                        <button class="btn-icon btn-edit" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editRoleModal{{ u.user_id }}" 
+                                title="Đổi quyền hạn">
+                            <i class="fas fa-user-edit"></i>
+                        </button>
+
+                        <form action="/admin/users/delete" method="post" onsubmit="return confirm('Xóa người dùng {{ u.fullname }}? Hành động này không thể hoàn tác!');" class="m-0">
+                            <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                            <button class="btn-icon btn-delete" title="Xóa tài khoản">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        </form>
+                        
+                        {% else %}
+                        <div style="width: 70px;"></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="editRoleModal{{ u.user_id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <form action="/admin/users/role" method="post">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title fw-bold">Phân Quyền: {{ u.fullname }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            
+                            <div class="modal-body p-4">
+                                <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                                
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold text-uppercase">Vai trò hiện tại</label>
+                                    <input type="text" class="form-control fw-bold text-secondary" value="{{ u.role|upper }}" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold text-uppercase">Chọn vai trò mới</label>
+                                    <select name="new_role" class="form-select fw-bold" 
+                                            onchange="toggleStudentSelect(this, 'student-select-{{ u.user_id }}')">
+                                        <option value="student" {% if u.role == 'student' %}selected{% endif %}>STUDENT (Học sinh)</option>
+                                        <option value="teacher" {% if u.role == 'teacher' %}selected{% endif %}>TEACHER (Giáo viên)</option>
+                                        <option value="parent" {% if u.role == 'parent' %}selected{% endif %}>PARENT (Phụ huynh)</option>
+                                        <option value="manager" {% if u.role == 'manager' %}selected{% endif %}>MANAGER (Quản lý)</option>
+                                        <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>ADMIN (Quản trị viên)</option>
+                                    </select>
+                                </div>
+
+                                <div id="student-select-{{ u.user_id }}" 
+                                     class="mb-3 p-3 bg-light rounded border border-warning {% if u.role != 'parent' %}d-none{% endif %}">
+                                    <label class="form-label fw-bold text-warning-emphasis">
+                                        <i class="fas fa-child me-1"></i> Chọn con cái (Học sinh)
+                                    </label>
+                                    <div class="small text-muted mb-2 fst-italic">Giữ phím <code>Ctrl</code> (hoặc Cmd) để chọn nhiều người.</div>
+                                    <select name="child_ids" multiple class="form-select" style="height: 150px;">
+                                        {% for st in all_students %}
+                                            <option value="{{ st.student_id }}" 
+                                                {% if u.parent_profile and st in u.parent_profile.children %}selected{% endif %}>
+                                                {{ st.user.fullname }} (Mã: {{ st.student_code }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="alert alert-info d-flex align-items-center mt-3 mb-0 p-2 small">
+                                    <i class="fas fa-info-circle fs-4 me-2"></i>
+                                    <div>Hệ thống sẽ tự động tạo hồ sơ tương ứng nếu chưa tồn tại.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer border-top-0">
+                                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-primary fw-bold px-4">Lưu Thay Đổi</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function toggleStudentSelect(selectElement, targetId) {
+        var targetDiv = document.getElementById(targetId);
+        if (selectElement.value === 'parent') {
+            targetDiv.classList.remove('d-none');
+        } else {
+            targetDiv.classList.add('d-none');
+        }
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const userListContainer = document.getElementById('userListContainer');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    let timeout = null;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            loadingIndicator.style.display = 'block';
+
+            timeout = setTimeout(() => {
+                const query = this.value;
+                
+                fetch(`/admin/users?search=${encodeURIComponent(query)}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        const newContent = doc.getElementById('userListContainer').innerHTML;
+                        
+                        userListContainer.innerHTML = newContent;
+                        loadingIndicator.style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error('Lỗi tìm kiếm:', err);
+                        loadingIndicator.style.display = 'none';
+                    });
+            }, 300);
+        });
+    }
+</script>
+{% endblock %}

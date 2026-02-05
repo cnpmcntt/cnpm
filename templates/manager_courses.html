@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .eval-card {
+        background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+        padding: 20px; margin-bottom: 20px; height: 100%;
+        display: flex; flex-direction: column;
+    }
+    .status-badge { font-size: 12px; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+    .status-good { background: #e6fffa; color: #00b894; }
+    .status-bad { background: #fff5f5; color: #fc8181; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark">Đánh Giá Chất Lượng</h3>
+</div>
+
+<div class="row">
+    {% for item in evaluations %}
+    <div class="col-md-4 mb-4">
+        <div class="eval-card">
+            <div class="d-flex justify-content-end mb-2">
+                {% if item.quality == 'Tốt' %}
+                    <span class="status-badge status-good">TỐT</span>
+                {% else %}
+                    <span class="status-badge status-bad">CẦN CẢI THIỆN</span>
+                {% endif %}
+            </div>
+            
+            <h5 class="fw-bold text-primary mb-1">{{ item.course.title }}</h5>
+            <p class="text-muted small mb-3">GV: {{ item.teacher_name }}</p>
+
+            <div class="mt-auto">
+                <div class="d-flex justify-content-between bg-light p-2 rounded mb-3 small">
+                    <span>Học viên: <strong>{{ item.student_count }}</strong></span>
+                    <span>Giá: <strong>${{ item.course.price }}</strong></span>
+                </div>
+                
+                <button class="btn btn-outline-warning w-100 btn-sm fw-bold" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#warningModal{{ item.course.course_id }}">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Gửi Cảnh Báo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="warningModal{{ item.course.course_id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/manager/send_warning" method="post">
+                    <div class="modal-header bg-warning bg-opacity-10">
+                        <h5 class="modal-title fw-bold text-warning">Gửi Cảnh Báo Giáo Viên</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="teacher_id" value="{{ item.course.teacher_id }}">
+                        <input type="hidden" name="course_title" value="{{ item.course.title }}">
+                        
+                        <p>Giáo viên nhận: <strong>{{ item.teacher_name }}</strong></p>
+                        <p>Về khóa học: <strong>{{ item.course.title }}</strong></p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lý do cảnh báo:</label>
+                            <select name="reason" class="form-select">
+                                <option value="Nội dung sơ sài, ít bài học">Nội dung sơ sài, ít bài học</option>
+                                <option value="Chất lượng hình ảnh/âm thanh kém">Chất lượng hình ảnh/âm thanh kém</option>
+                                <option value="Không tương tác với học viên">Không tương tác với học viên</option>
+                                <option value="Số lượng học viên quá thấp">Số lượng học viên quá thấp</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-warning btn-sm fw-bold">Gửi ngay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

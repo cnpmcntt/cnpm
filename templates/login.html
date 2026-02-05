@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f5f5f5;
+        background-image: none !important;
+    }
+
+    .navbar a[href="/login"] {
+        display: none !important;
+    }
+
+    .login-container {
+        min-height: 80vh; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 26px;
+        margin-bottom: 5px;
+        color: #333;
+        letter-spacing: 1px;
+    }
+
+    .login-subtitle {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 30px;
+    }
+
+    .login-subtitle a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        border-bottom: 1px solid #333;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #eee;
+        background-color: #fafafa;
+        font-size: 14px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(123, 228, 149, 0.2);
+        border-color: #7BE495;
+    }
+
+    .form-label {
+        text-align: left;
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        color: #444;
+        margin-bottom: 5px;
+        margin-left: 2px;
+    }
+
+    .btn-login {
+        background-color: #7BE495;
+        border: none;
+        color: white;
+        font-weight: 800;
+        padding: 14px;
+        border-radius: 30px;
+        width: 100%;
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 1.5px;
+        margin-top: 10px; 
+        box-shadow: 0 5px 15px rgba(123, 228, 149, 0.4);
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-login:hover {
+        background-color: #5dc77a;
+        transform: translateY(-2px);
+    }
+
+    .forgot-pass {
+        font-size: 12px;
+        color: #999;
+        text-decoration: none;
+        margin-top: 20px;
+        display: block;
+        font-weight: 500;
+    }
+    
+    .forgot-pass:hover {
+        color: #555;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="login-title">LOG IN</h2>
+        <div class="login-subtitle">
+            Don't have an account? <a href="/register">Create an account</a>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger py-2 small rounded-3 mb-3">{{ error }}</div>
+        {% endif %}
+
+        {% if success %}
+            <div class="alert alert-success py-2 small rounded-3 mb-3">{{ success }}</div>
+        {% endif %}
+
+        <form action="/login" method="post">
+            <div class="text-start">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="text-start">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn-login">Log in</button>
+            
+            <a href="/forgot-password" class="forgot-pass">Forgot password?</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

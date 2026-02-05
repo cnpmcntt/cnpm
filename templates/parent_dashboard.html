@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+    }
+</style>
+
+<div class="container py-4">
+    <div class="mb-5">
+        <h2 class="fw-bold text-dark mb-1">Tổng Quan Gia Đình</h2>
+        <p class="text-muted mb-0">Theo dõi hành trình học tập của con bạn.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% if children %}
+            {% for child in children %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header border-0 py-2" style="background: linear-gradient(to right, #e0c3fc, #8ec5fc);"></div>
+                    
+                    <div class="card-body text-center pt-4 pb-4">
+                        <div class="d-flex justify-content-center mb-3">
+                            <div class="avatar-circle">
+                                {{ child.user.fullname[0] | upper }}
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold text-dark mb-1">{{ child.user.fullname }}</h4>
+                        <div class="mb-4">
+                            <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill me-1">
+                                <i class="fas fa-id-card me-1"></i> {{ child.student_code }}
+                            </span>
+                            <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">
+                                <i class="fas fa-graduation-cap me-1"></i> {{ child.grade_level }}
+                            </span>
+                        </div>
+
+                        <div class="row g-2 mb-4 px-3">
+                            <div class="col-6">
+                                <div class="bg-light rounded-3 p-2 border">
+                                    <small class="text-muted d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Bài tập</small>
+                                    <span class="fw-bold text-dark fs-5">--</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-light rounded-3 p-2 border">
+                                    <small class="text-muted d-block text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Điểm TB</small>
+                                    <span class="fw-bold text-success fs-5">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="/parent/child/{{ child.student_id }}" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                            Xem chi tiết hồ sơ <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Empty" width="150" class="mb-3 opacity-50">
+                <h4 class="text-muted">Chưa có hồ sơ học sinh nào</h4>
+                <p class="text-secondary">Vui lòng liên hệ nhà trường để cập nhật thông tin.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
