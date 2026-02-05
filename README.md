@@ -3,9 +3,6 @@
 IGCSE Learning Hub is a web-based Learning Management System designed to support IGCSE Mathematics students through structured learning paths, AI-assisted marking, and transparent progress tracking for teachers and parents.
 
 The system aims to reduce fragmented learning resources, improve exam readiness, and enhance communication between students, teachers, parents, and administrators.
-
----
-
 ## Functional Requirements
 
 ### 1. General User Functional Requirements
@@ -14,8 +11,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-02] Secure login and logout with role-based access control.  
 [FR-03] View and update personal profile information.  
 [FR-04] Receive system notifications and announcements.  
-
----
 
 ### 2. Student Functional Requirements
 
@@ -27,8 +22,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-10] Track learning progress through a dashboard.  
 [FR-11] Purchase courses and view payment history.  
 
----
-
 ### 3. Teacher Functional Requirements
 
 [FR-12] Create, update, and manage course content.  
@@ -37,7 +30,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-15] Review AI grading results and override scores when necessary.  
 [FR-16] Communicate with students via messaging system.  
 
----
 
 ### 4. Parent Functional Requirements
 
@@ -45,7 +37,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-18] Receive alerts when the student performs poorly or misses milestones.  
 [FR-19] Access AI-generated marking reports for transparency.  
 
----
 
 ### 5. Manager Functional Requirements
 
@@ -53,7 +44,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-21] Monitor course quality and content statistics.  
 [FR-22] Manage academic standards and curriculum alignment.  
 
----
 
 ### 6. Admin Functional Requirements
 
@@ -62,25 +52,6 @@ The system aims to reduce fragmented learning resources, improve exam readiness,
 [FR-25] Track financial transactions and export revenue reports.  
 [FR-26] Configure system settings and backup data.  
 
----
 
-### 7. External System Requirements
 
-[FR-27] Integrate with a Payment Gateway for course and slot purchases.  
-[FR-28] Integrate with an AI System for automated grading and performance analysis.  
-
----
-
-## Technologies Used
-
-- **Frontend**: ReactJS / Next.js  
-- **Backend**: Python (RESTful API)  
-- **Database**: MySQL (Liquibase for migration)  
-- **AI Integration**: OpenAI API  
-- **Deployment**: Vercel (Frontend), Jenkins (Backend)  
-- **Project Management**: Jira  
-
----
-
-## Project Structure
 
