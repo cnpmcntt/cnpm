@@ -1,8 +1,4 @@
 # IGCSE Learning Management System
-
-IGCSE Learning is a web-based learning management system designed to support teaching, learning, assessment, and academic monitoring for IGCSE programs.  
-The system provides role-based access for administrators, managers, teachers, students, and parents.
-
 ## Functional Requirements
 
 ### 1. User Functional Requirements (Common)
