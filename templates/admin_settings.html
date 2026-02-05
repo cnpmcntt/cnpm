@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .admin-nav .nav-link { 
+        border: 1px solid transparent; 
+        color: #666; 
+        font-weight: 600; 
+        padding: 8px 25px; 
+        border-radius: 50px; 
+        background-color: #fff;
+        margin-right: 8px;
+    }
+    .admin-nav .nav-link:hover { 
+        background-color: #f8f9fa; 
+        color: #333;
+    }
+    .admin-nav .nav-link.active { 
+        background-color: #4b6cb7; 
+        color: white; 
+        box-shadow: none; 
+    }
+
+    .settings-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .settings-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .form-switch .form-check-input:checked {
+        background-color: #4b6cb7;
+        border-color: #4b6cb7;
+    }
+
+    .btn-save {
+        background-color: #4b6cb7;
+        color: white;
+        font-weight: 600;
+        padding: 10px 25px;
+        border-radius: 6px;
+        border: none;
+    }
+    .btn-save:hover { background-color: #3b5998; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0">Cấu Hình Hệ Thống</h3>
+        <p class="text-muted small mt-1 mb-0">Điều chỉnh các tham số vận hành website.</p>
+    </div>
+</div>
+
+<div class="mb-4">
+    <ul class="nav admin-nav d-inline-flex bg-transparent p-0">
+        <li class="nav-item"><a class="nav-link border" href="/admin/financials"><i class="fas fa-chart-line me-2"></i>Tài Chính</a></li>
+        <li class="nav-item"><a class="nav-link border" href="/admin/users"><i class="fas fa-users-cog me-2"></i>Người Dùng</a></li>
+        <li class="nav-item"><a class="nav-link active border border-primary" href="/admin/settings"><i class="fas fa-sliders-h me-2"></i>Cấu Hình</a></li>
+    </ul>
+</div>
+
+<form action="/admin/settings/update" method="post">
+    <div class="row">
+        
+        <div class="col-md-6">
+            <div class="settings-card h-100">
+                <h5 class="settings-title"><i class="fas fa-globe me-2"></i>Thông Tin Chung</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted">Tên Website</label>
+                    <input type="text" name="site_name" class="form-control" value="{{ settings.site_name }}" placeholder="Ví dụ: IGCSE Learning Hub">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted">Email Liên Hệ (Admin)</label>
+                    <input type="email" name="contact_email" class="form-control" value="{{ settings.contact_email }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted">Đơn vị tiền tệ</label>
+                    <select name="currency" class="form-select">
+                        <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="VND" {% if settings.currency == 'VND' %}selected{% endif %}>VND (₫)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="settings-card h-100">
+                <h5 class="settings-title"><i class="fas fa-shield-alt me-2"></i>Trạng Thái & Quyền</h5>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="d-block fw-bold text-dark">Cho phép đăng ký mới</span>
+                        <small class="text-muted">Nếu tắt, người lạ không thể tạo tài khoản.</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="allow_register" {% if settings.allow_register %}checked{% endif %}>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="d-block fw-bold text-danger">Chế độ Bảo Trì</span>
+                        <small class="text-muted">Chỉ Admin mới truy cập được khi bật.</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mt-3">
+        <button type="submit" class="btn-save shadow-sm">
+            <i class="fas fa-save me-2"></i> Lưu Cấu Hình
+        </button>
+    </div>
+</form>
+{% endblock %}

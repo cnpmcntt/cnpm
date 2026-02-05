@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .detail-card { 
+        background: white; border: 1px solid #e0e0e0; border-radius: 8px; 
+        padding: 25px; margin-bottom: 20px; 
+    }
+    .label-custom { font-size: 13px; color: #888; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+    .value-custom { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 15px; }
+    
+    .list-header { font-weight: 700; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; color: #444; }
+    
+    .item-row { padding: 12px 0; border-bottom: 1px solid #f9f9f9; display: flex; justify-content: space-between; align-items: center; }
+    .item-row:last-child { border-bottom: none; }
+    
+    .badge-id { font-size: 11px; background: #eee; color: #666; padding: 3px 8px; border-radius: 4px; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="/manager/dashboard" class="text-decoration-none text-muted small fw-bold">
+            <i class="fas fa-arrow-left me-1"></i> QUAY LẠI DASHBOARD
+        </a>
+        <h3 class="fw-bold text-dark mt-2">Nội Dung Khóa Học</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="detail-card h-100">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>Thông Tin</h5>
+            <hr class="my-3 opacity-25">
+            
+            <div class="label-custom">Tên Khóa Học</div>
+            <div class="value-custom">{{ course.title }}</div>
+
+            <div class="label-custom">Giáo Viên</div>
+            <div class="value-custom">
+                {% if course.teacher and course.teacher.user %}
+                    {{ course.teacher.user.fullname }}
+                {% else %}
+                    Chưa cập nhật
+                {% endif %}
+            </div>
+
+            <div class="label-custom">Học phí</div>
+            <div class="value-custom text-success">${{ course.price }}</div>
+
+            <div class="label-custom">Mô tả ngắn</div>
+            <p class="text-muted small mb-0">{{ course.description }}</p>
+            
+            <hr class="my-3 opacity-25">
+            <div class="label-custom">Tổng Học Viên</div>
+            <div class="value-custom">{{ students|length }} người</div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        
+        <div class="detail-card">
+            <div class="d-flex justify-content-between align-items-center list-header">
+                <span><i class="fas fa-book-open me-2 text-primary"></i>Danh Sách Bài Giảng ({{ lessons|length }})</span>
+            </div>
+            
+            {% for l in lessons %}
+            <div class="item-row">
+                <div>
+                    <span class="fw-bold text-dark">{{ l.title }}</span>
+                </div>
+                <span class="badge-id">ID: {{ l.lesson_id }}</span>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-3 fst-italic">Chưa có bài học nào được tạo.</div>
+            {% endfor %}
+        </div>
+
+        <div class="detail-card">
+            <div class="d-flex justify-content-between align-items-center list-header">
+                <span><i class="fas fa-question-circle me-2 text-danger"></i>Danh Sách Bài Quiz ({{ quizzes|length }})</span>
+            </div>
+            
+            {% for q in quizzes %}
+            <div class="item-row">
+                <div>
+                    <span class="fw-bold text-dark">{{ q.title }}</span>
+                    <br>
+                    <small class="text-muted"><i class="far fa-clock me-1"></i>Thời gian: {{ q.duration }} phút</small>
+                </div>
+                <span class="badge-id">ID: {{ q.quiz_id }}</span>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-3 fst-italic">Chưa có bài kiểm tra nào.</div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

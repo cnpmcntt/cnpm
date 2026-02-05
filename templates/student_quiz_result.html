@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .score-circle {
+        width: 150px; height: 150px; margin: 0 auto 20px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        flex-direction: column; color: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .score-high { background: linear-gradient(135deg, #11998e, #38ef7d); }
+    .score-med { background: linear-gradient(135deg, #f6d365, #fda085); }
+    .score-low { background: linear-gradient(135deg, #ff9a9e, #fecfef); color: #c0392b; }
+    .score-num { font-size: 3.5rem; font-weight: 800; line-height: 1; }
+</style>
+
+<div class="container" style="max-width: 800px;">
+
+    {% if request.query_params.get('msg') == 'success' %}
+    <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4 border-0 bg-success text-white" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-0">Nộp bài thành công!</h5>
+                <p class="mb-0 text-white-50">Hệ thống đã chấm điểm tự động. Xem kết quả bên dưới.</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="text-center bg-white p-5 rounded-4 shadow-sm mb-4 position-relative overflow-hidden">
+        <div class="position-absolute top-0 start-0 w-100 h-10px bg-light"></div>
+        
+        {% if submission.score >= 8 %}
+            <div class="score-circle score-high">
+                <div class="score-num">{{ submission.score }}</div>
+                <div class="small fw-bold">XUẤT SẮC</div>
+            </div>
+            <h2 class="fw-bold text-success">Tuyệt vời!</h2>
+            <p class="text-muted">Bạn đã nắm rất vững kiến thức.</p>
+        {% elif submission.score >= 5 %}
+            <div class="score-circle score-med">
+                <div class="score-num">{{ submission.score }}</div>
+                <div class="small fw-bold">KHÁ TỐT</div>
+            </div>
+            <h2 class="fw-bold text-warning">Làm tốt lắm!</h2>
+            <p class="text-muted">Cố gắng thêm chút nữa nhé.</p>
+        {% else %}
+            <div class="score-circle score-low">
+                <div class="score-num">{{ submission.score }}</div>
+                <div class="small fw-bold">CỐ LÊN</div>
+            </div>
+            <h2 class="fw-bold text-danger">Đừng nản chí!</h2>
+            <p class="text-muted">Hãy ôn tập lại bài giảng và thử lại.</p>
+        {% endif %}
+
+        <hr class="my-4">
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/student/learn/{{ submission.quiz.course_id }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+                <i class="fas fa-arrow-left me-2"></i> Về Khóa Học
+            </a>
+            <a href="/student/quiz/take/{{ submission.quiz_id }}" class="btn btn-primary rounded-pill px-4 fw-bold">
+                <i class="fas fa-redo me-2"></i> Làm Lại
+            </a>
+        </div>
+    </div>
+
+    <h5 class="fw-bold mb-3 ms-2 text-primary"><i class="fas fa-list-ul me-2"></i>Chi Tiết Bài Làm</h5>
+    
+    {% for ans in submission.answers %}
+    <div class="card border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="d-flex">
+                <div class="p-3 d-flex align-items-center justify-content-center bg-light text-muted fw-bold border-end" style="width: 50px;">
+                    {{ loop.index }}
+                </div>
+                <div class="p-3 flex-grow-1">
+                    <h6 class="fw-bold mb-2 text-dark">{{ ans.question.content }}</h6>
+                    
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small me-2">Bạn chọn:</span>
+                            {% if ans.is_correct %}
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="fas fa-check me-1"></i> {{ ans.selected_option }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+                                    <i class="fas fa-times me-1"></i> {{ ans.selected_option if ans.selected_option else "Không chọn" }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if not ans.is_correct %}
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small me-2">Đáp án đúng:</span>
+                            <span class="badge bg-success bg-opacity-75 rounded-pill px-3 py-2">
+                                {{ ans.question.correct_answer }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

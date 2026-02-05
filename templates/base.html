@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGCSE Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: #182848;
+            --bg-body: #f4f6f9;
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Poppins', sans-serif;
+            color: #444;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar { 
+            background: var(--primary-gradient); 
+            padding: 12px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        footer {
+            margin-top: auto;
+            background-color: #fff;
+            padding: 25px 0;
+            border-top: 1px solid #eee;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4 sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap me-2"></i> IGCSE Hub
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <div class="d-flex align-items-center gap-3">
+                    {% if user %}
+                        
+                        <ul class="navbar-nav me-3 d-none d-lg-flex">
+                            {% if user.role == 'manager' %}
+                                <li class="nav-item"><a class="nav-link text-white-50" href="/manager/dashboard">Thống kê</a></li>
+                                <li class="nav-item"><a class="nav-link text-white-50" href="/manager/courses">Đánh giá</a></li>
+                            {% elif user.role == 'teacher' %}
+                                <li class="nav-item"><a class="nav-link text-white-50" href="/teacher">Lớp học</a></li>
+                            {% endif %}
+                        </ul>
+
+                        {% if user.role == 'student' or user.role == 'parent' %}
+                            {% set notif_link = '/student/notifications' if user.role == 'student' else '/parent/alerts' %}
+                            <a href="{{ notif_link }}" class="text-white-50 me-2">
+                                <i class="fas fa-bell fa-lg"></i>
+                                {% if unread_count and unread_count > 0 %}
+                                    <span class="badge rounded-pill bg-danger" style="font-size: 0.6rem; vertical-align: top;">
+                                        {{ unread_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-white" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar me-2">
+                                    {% if user.fullname %}
+                                        {{ user.fullname[0] | upper }}
+                                    {% else %}
+                                        U
+                                    {% endif %}
+                                </div>
+                                <div class="d-none d-md-block text-start" style="line-height: 1.2;">
+                                    <span class="d-block fw-bold" style="font-size: 0.9rem;">
+                                        {{ user.fullname if user.fullname else "User" }}
+                                    </span>
+                                    <span class="d-block text-white-50" style="font-size: 0.75rem; text-transform: uppercase;">{{ user.role }}</span>
+                                </div>
+                            </a>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                <li>
+                                    <a class="dropdown-item" href="/profile">
+                                        <i class="fas fa-user-circle me-2 text-muted"></i> Hồ sơ cá nhân
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                            </ul>
+                        </div>
+
+                    {% else %}
+                        <a href="/login" class="btn btn-light text-primary fw-bold shadow-sm">Đăng nhập</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5 flex-grow-1">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

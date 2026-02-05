@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .content-box { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    .box-header { font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; color: #444; }
+    
+    .list-item { 
+        padding: 12px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; 
+        transition: background 0.2s;
+    }
+    .list-item:hover { background-color: #f9f9f9; }
+    .list-item:last-child { border-bottom: none; }
+    
+    .btn-delete { 
+        border: none; background: none; color: #ff6b6b; padding: 0 10px; cursor: pointer;
+    }
+    .btn-delete:hover { color: #d63031; transform: scale(1.1); }
+</style>
+
+<div class="mb-3">
+    <a href="/teacher" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left"></i> Quay lại Dashboard</a>
+</div>
+
+<h3 class="fw-bold text-primary mb-4">{{ course.title }}</h3>
+
+<div class="row">
+    <div class="col-md-7">
+        
+        <div class="content-box">
+            <div class="box-header d-flex justify-content-between">
+                <span><i class="fas fa-book me-2"></i>Bài Giảng</span>
+                <span class="badge bg-secondary">{{ course.lessons|length }}</span>
+            </div>
+            {% for l in course.lessons %}
+            <div class="list-item">
+                <div class="d-flex align-items-center">
+                    <span class="fw-bold text-dark me-2">{{ l.title }}</span>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#lessonModal{{ l.lesson_id }}" class="text-primary small fw-bold text-decoration-none">
+                        <i class="fas fa-eye"></i> Xem
+                    </a>
+                </div>
+                
+                <form action="/teacher/lesson/delete" method="post" onsubmit="return confirm('Xóa bài học này?');">
+                    <input type="hidden" name="lesson_id" value="{{ l.lesson_id }}">
+                    <button type="submit" class="btn-delete" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </div>
+
+            <div class="modal fade" id="lessonModal{{ l.lesson_id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header"><h5 class="modal-title fw-bold">{{ l.title }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                        <div class="modal-body">{{ l.content | safe }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="content-box">
+            <div class="box-header d-flex justify-content-between">
+                <span><i class="fas fa-question-circle me-2"></i>Bài Kiểm Tra (Quiz)</span>
+                <span class="badge bg-secondary">{{ course.quizzes|length }}</span>
+            </div>
+            {% for q in course.quizzes %}
+            <div class="list-item">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <span class="fw-bold text-dark me-2">{{ q.title }}</span>
+                    <span class="badge bg-light text-muted border me-3">{{ q.duration }} phút</span>
+                    <a href="/teacher/quiz/{{ q.quiz_id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-0" style="font-size: 12px;">
+                        Soạn câu hỏi <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <form action="/teacher/quiz/delete" method="post" onsubmit="return confirm('Xóa bài Quiz này?');">
+                    <input type="hidden" name="quiz_id" value="{{ q.quiz_id }}">
+                    <button type="submit" class="btn-delete" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="content-box">
+            <div class="box-header d-flex justify-content-between">
+                <span><i class="fas fa-pen-nib me-2"></i>Bài Tập Về Nhà</span>
+                <span class="badge bg-secondary">{{ course.assignments|length }}</span>
+            </div>
+            {% for a in course.assignments %}
+            <div class="list-item">
+                <div class="flex-grow-1">
+                    <span class="fw-bold text-dark d-block">{{ a.title }}</span>
+                    <small class="text-muted d-block">Đề bài: {{ a.content }}</small>
+                </div>
+                
+                <form action="/teacher/assignment/delete" method="post" onsubmit="return confirm('Xóa bài tập này?');">
+                    <input type="hidden" name="assignment_id" value="{{ a.assignment_id }}">
+                    <button type="submit" class="btn-delete ms-3" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </div>
+            {% else %}
+            <div class="text-muted small fst-italic py-2 text-center">Chưa có bài tập nào.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="content-box bg-light border-0 sticky-top" style="top: 20px;">
+            <h5 class="fw-bold mb-3 text-success">Thêm Nội Dung Mới</h5>
+            <ul class="nav nav-tabs mb-3 bg-white rounded" id="myTab" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#addLesson">Bài Học</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#addQuiz">Quiz</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#addAssign">Bài Tập</button></li>
+            </ul>
+            
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="addLesson">
+                    <form action="/teacher/lesson/add" method="post">
+                        <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                        <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Tên bài học" required></div>
+                        <div class="mb-2"><textarea name="content" class="form-control" rows="4" placeholder="Nội dung bài giảng..." required></textarea></div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm Bài Học</button>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="addQuiz">
+                    <form action="/teacher/quiz/add" method="post">
+                        <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                        <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Tên bài kiểm tra" required></div>
+                        <div class="mb-2"><input type="number" name="duration" class="form-control" placeholder="Thời gian (phút)" required></div>
+                        <button type="submit" class="btn btn-success w-100">Thêm Quiz</button>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="addAssign">
+                    <form action="/teacher/assignment/add" method="post">
+                        <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                        <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Tiêu đề bài tập" required></div>
+                        <div class="mb-2"><input type="number" name="max_score" class="form-control" placeholder="Điểm tối đa (VD: 10)" required></div>
+                        <div class="mb-2"><textarea name="content" class="form-control" rows="3" placeholder="Đề bài tập" required></textarea></div>
+                        <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">Giao Bài Tập</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

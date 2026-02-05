@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .quiz-container { max-width: 800px; margin: 0 auto; }
+    
+    .quiz-header {
+        background: white; border-radius: 15px; padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 30px;
+        border-bottom: 4px solid #4e54c8;
+        position: sticky; top: 80px; z-index: 100;
+    }
+
+    .question-card {
+        background: white; border: none; border-radius: 15px;
+        padding: 30px; margin-bottom: 25px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.03);
+    }
+    
+    .question-title { font-size: 1.1rem; font-weight: 700; color: #2d3436; margin-bottom: 20px; }
+    
+    .option-label {
+        display: block; padding: 15px 20px; margin-bottom: 10px;
+        background: #f8f9fa; border: 2px solid transparent; border-radius: 10px;
+        cursor: pointer; transition: all 0.2s; font-weight: 500; color: #555;
+    }
+    .option-label:hover { background: #eef2ff; border-color: #a5b4fc; }
+    
+    .option-input:checked + .option-label {
+        background: #eef2ff; border-color: #4e54c8; color: #4e54c8;
+        box-shadow: 0 4px 10px rgba(78, 84, 200, 0.2);
+    }
+    
+    .option-input { display: none; }
+    
+    .option-key {
+        display: inline-block; width: 30px; height: 30px; line-height: 26px;
+        text-align: center; border-radius: 50%; border: 2px solid #ddd;
+        margin-right: 15px; font-weight: 700; font-size: 0.9rem;
+    }
+    .option-input:checked + .option-label .option-key {
+        background: #4e54c8; border-color: #4e54c8; color: white;
+    }
+
+    .btn-submit-quiz {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: 800;
+        border-radius: 50px; color: white; box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+        transition: transform 0.2s;
+    }
+    .btn-submit-quiz:hover { transform: scale(1.05); }
+
+</style>
+
+<div class="quiz-container pb-5">
+    
+    <div class="quiz-header d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="fw-bold text-primary mb-0">{{ quiz.title }}</h4>
+            <small class="text-muted">Tổng số câu: <strong>{{ quiz.questions|length }}</strong></small>
+        </div>
+        <div class="text-end">
+            <div class="d-flex align-items-center bg-light px-3 py-2 rounded-pill">
+                <i class="fas fa-clock text-danger me-2"></i>
+                <span class="fw-bold text-dark">{{ quiz.duration }} phút</span>
+            </div>
+        </div>
+    </div>
+
+    <form action="/student/quiz/submit/{{ quiz.quiz_id }}" method="post">
+        {% for q in quiz.questions %}
+        <div class="question-card">
+            <div class="d-flex mb-3">
+                <span class="badge bg-primary me-2 h-100" style="padding: 10px 12px; font-size: 1rem;">{{ loop.index }}</span>
+                <div class="question-title">{{ q.content }}</div>
+            </div>
+
+            <div class="options-list">
+                <input type="radio" name="q_{{ q.question_id }}" id="opt_a_{{ q.question_id }}" value="A" class="option-input" required>
+                <label for="opt_a_{{ q.question_id }}" class="option-label">
+                    <span class="option-key">A</span> {{ q.option_a }}
+                </label>
+
+                <input type="radio" name="q_{{ q.question_id }}" id="opt_b_{{ q.question_id }}" value="B" class="option-input">
+                <label for="opt_b_{{ q.question_id }}" class="option-label">
+                    <span class="option-key">B</span> {{ q.option_b }}
+                </label>
+
+                <input type="radio" name="q_{{ q.question_id }}" id="opt_c_{{ q.question_id }}" value="C" class="option-input">
+                <label for="opt_c_{{ q.question_id }}" class="option-label">
+                    <span class="option-key">C</span> {{ q.option_c }}
+                </label>
+
+                <input type="radio" name="q_{{ q.question_id }}" id="opt_d_{{ q.question_id }}" value="D" class="option-input">
+                <label for="opt_d_{{ q.question_id }}" class="option-label">
+                    <span class="option-key">D</span> {{ q.option_d }}
+                </label>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center mt-5">
+            <button type="submit" class="btn-submit-quiz" onclick="return confirm('Bạn có chắc chắn muốn nộp bài không?')">
+                <i class="fas fa-paper-plane me-2"></i> NỘP BÀI
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

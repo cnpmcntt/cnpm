@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary">Lộ Trình Học Tập Cá Nhân Hóa</h2>
+        <p class="text-muted">Dựa trên trình độ hiện tại: <strong>{{ student.grade_level }}</strong></p>
+    </div>
+
+    <div class="position-relative">
+        <div class="position-absolute top-0 bottom-0 start-50 translate-middle-x bg-light" style="width: 4px;"></div>
+
+        {% for rec in recommendations %}
+        <div class="row mb-5 position-relative align-items-center">
+            <div class="position-absolute top-50 start-50 translate-middle rounded-circle bg-primary border border-4 border-white shadow-sm" style="width: 20px; height: 20px; z-index: 1;"></div>
+            
+            {% if loop.index is odd %}
+            <div class="col-md-5 text-md-end pe-5">
+                <div class="card border-0 shadow-sm p-3">
+                    <h5 class="fw-bold">{{ rec.title }}</h5>
+                    <p class="small text-muted mb-2">Bước {{ loop.index }}: Nền tảng quan trọng</p>
+                    <a href="/student/courses" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                </div>
+            </div>
+            <div class="col-md-5 offset-md-2"></div>
+            {% else %}
+            <div class="col-md-5"></div>
+            <div class="col-md-5 offset-md-2 ps-5">
+                <div class="card border-0 shadow-sm p-3">
+                    <h5 class="fw-bold">{{ rec.title }}</h5>
+                    <p class="small text-muted mb-2">Bước {{ loop.index }}: Nâng cao kỹ năng</p>
+                    <a href="/student/courses" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center bg-white p-5 rounded shadow-sm">
+            <p>Hệ thống đang cập nhật lộ trình phù hợp cho bạn...</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

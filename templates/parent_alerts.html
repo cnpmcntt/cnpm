@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    
+    <div class="mb-3">
+        <a href="/parent" class="text-decoration-none text-secondary fw-bold back-link">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại Trang chủ
+        </a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark mb-0">
+            <i class="fas fa-bell text-primary me-2"></i>Thông báo của bạn
+        </h3>
+    </div>
+    
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="list-group list-group-flush">
+            {% for notif in notifications %}
+            <div class="list-group-item list-group-item-action p-4 border-bottom position-relative notification-item">
+                <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 fw-bold {{ 'text-primary' if not notif.is_read else 'text-dark' }}">
+                        {% if not notif.is_read %}
+                            <i class="fas fa-circle text-primary me-2" style="font-size: 8px; vertical-align: middle;"></i>
+                        {% endif %}
+                        Tin hệ thống
+                    </h6>
+                    <small class="text-muted bg-light px-2 py-1 rounded">
+                        <i class="far fa-clock me-1"></i> {{ notif.created_at.strftime('%H:%M - %d/%m') }}
+                    </small>
+                </div>
+                <p class="mb-1 text-secondary" style="line-height: 1.6;">{{ notif.message }}</p>
+            </div>
+            {% else %}
+            
+            <div class="text-center py-5 px-3 bg-white">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                    <i class="fas fa-bell-slash fa-3x text-secondary opacity-25"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Hiện tại chưa có thông báo nào</h5>
+                <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">
+                    Hệ thống sẽ gửi thông báo khi có kết quả học tập hoặc tin tức mới từ nhà trường.
+                </p>
+                <a href="/parent" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                    Về trang chủ
+                </a>
+            </div>
+            
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .back-link {
+        transition: color 0.2s ease;
+    }
+    .back-link:hover {
+        color: #0d6efd !important; 
+    }
+
+    .notification-item {
+        border-left: 3px solid transparent;
+        transition: background-color 0.2s ease, border-left 0.2s ease;
+    }
+    .notification-item:hover {
+        background-color: #f8f9fa;
+        border-left: 3px solid #0d6efd;
+    }
+</style>
+{% endblock %}

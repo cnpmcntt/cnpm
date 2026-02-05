@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa; 
+    }
+
+    .profile-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        overflow: hidden; 
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .card-top-accent {
+        height: 8px;
+        width: 100%;
+        background: #4b6cb7;
+    }
+
+    .profile-header {
+        background-color: #fcfcfc;
+        padding: 40px 20px 20px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+        font-weight: 700;
+        color: white;
+        background-color: #4b6cb7;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px auto;
+        border: 4px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .profile-body {
+        padding: 30px 40px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #444;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #dde1e5;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        background-color: #fff;
+    }
+    
+    .form-control:focus {
+        border-color: #4b6cb7;
+        box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.1);
+    }
+
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-color: #eee;
+        cursor: not-allowed;
+    }
+
+    .role-badge {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 6px 15px;
+        border-radius: 50px;
+        background-color: #e3f2fd;
+        color: #1565c0;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .btn-save {
+        background-color: #4b6cb7;
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+    }
+    .btn-save:hover { background-color: #3b5998; }
+
+    .btn-cancel {
+        background: #f1f3f5;
+        color: #495057;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-right: 10px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-cancel:hover { background: #e9ecef; color: #333; }
+</style>
+
+<div class="container py-5">
+    
+    {% if msg %}
+    <div class="alert alert-success border-0 shadow-sm text-center py-3 mb-4 mx-auto rounded-3" style="max-width: 700px;">
+        <i class="fas fa-check-circle me-2"></i> {{ msg }}
+    </div>
+    {% endif %}
+
+    <div class="profile-card">
+        <div class="card-top-accent"></div>
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.fullname[0] | upper }}
+            </div>
+            <h4 class="fw-bold text-dark mb-1">{{ user.fullname }}</h4>
+            <div class="mb-2 text-muted small">{{ user.email }}</div>
+            <span class="role-badge">{{ user.role }}</span>
+        </div>
+
+        <div class="profile-body">
+            <form action="/profile/update" method="post">
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label text-muted text-uppercase small" style="font-size: 11px;">Thông tin định danh</label>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email đăng nhập</label>
+                            <input type="text" class="form-control" value="{{ user.email }}" readonly>
+                            <div class="form-text small mt-1"><i class="fas fa-lock me-1"></i> Không thể thay đổi email.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label text-muted text-uppercase small" style="font-size: 11px;">Chỉnh sửa thông tin</label>
+
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="fullname" class="form-control" value="{{ user.fullname }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <input type="password" name="password" class="form-control" placeholder="Để trống nếu không đổi...">
+                            <div class="form-text small mt-1">Tối thiểu 6 ký tự để bảo mật.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end align-items-center mt-3 pt-3 border-top">
+                    {% set back_link = '/' %}
+                    {% if user.role == 'admin' %}{% set back_link = '/admin/financials' %}
+                    {% elif user.role == 'manager' %}{% set back_link = '/manager/dashboard' %}
+                    {% elif user.role == 'teacher' %}{% set back_link = '/teacher' %}
+                    {% elif user.role == 'student' %}{% set back_link = '/student' %}
+                    {% elif user.role == 'parent' %}{% set back_link = '/parent' %}
+                    {% endif %}
+
+                    <a href="{{ back_link }}" class="btn-cancel">Hủy bỏ</a>
+                    <button type="submit" class="btn-save shadow-sm">
+                        <i class="fas fa-save me-2"></i> Lưu Thay Đổi
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
