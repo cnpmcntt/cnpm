@@ -43,9 +43,9 @@ async def monitor_child(student_id: int, request: Request, db: Session = Depends
     parent = user.parent_profile
     
     child = db.query(models.Student).filter(
-        models.Student.student_id == student_id,
-        models.Student.parent_id == parent.parent_id
-    ).first()
+    models.Student.student_id == student_id,
+    models.Student.parents.any(parent_id=parent.parent_id)
+).first()
     
     if not child:
         return RedirectResponse("/parent?msg=access_denied")
@@ -93,4 +93,5 @@ async def parent_alerts(request: Request, db: Session = Depends(get_db), user: m
         "user": user, 
         "notifications": notifs,
         "unread_count": 0
+
     })
