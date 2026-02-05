@@ -1,57 +1,66 @@
-# IGCSE Learning Hub
+# IGCSE Learning Management System
 
-IGCSE Learning Hub is a web-based Learning Management System designed to support IGCSE Mathematics students through structured learning paths, AI-assisted marking, and transparent progress tracking for teachers and parents.
+IGCSE Learning is a web-based learning management system designed to support teaching, learning, assessment, and academic monitoring for IGCSE programs.  
+The system provides role-based access for administrators, managers, teachers, students, and parents.
 
-The system aims to reduce fragmented learning resources, improve exam readiness, and enhance communication between students, teachers, parents, and administrators.
 ## Functional Requirements
 
-### 1. General User Functional Requirements
+### 1. User Functional Requirements (Common)
 
-[FR-01] Register and log in using email and password.  
-[FR-02] Secure login and logout with role-based access control.  
-[FR-03] View and update personal profile information.  
-[FR-04] Receive system notifications and announcements.  
+- **[FR-1]** Register and log in using email and password authentication.
+- **[FR-2]** Log out securely from the system.
+- **[FR-3]** View and update personal profile information.
+- **[FR-4]** Change account password.
+- **[FR-5]** Receive system notifications related to learning activities.
+- **[FR-6]** Access the system based on assigned role permissions.
 
 ### 2. Student Functional Requirements
 
-[FR-05] Access enrolled courses and learning modules.  
-[FR-06] Follow a personalized learning path generated based on performance.  
-[FR-07] Take practice quizzes and mock tests.  
-[FR-08] Submit mock tests and receive AI-generated scores and feedback.  
-[FR-09] View detailed results, explanations, and performance history.  
-[FR-10] Track learning progress through a dashboard.  
-[FR-11] Purchase courses and view payment history.  
+- **[FR-7]** View enrolled courses and learning materials.
+- **[FR-8]** Participate in quizzes and assessments.
+- **[FR-9]** Submit assignments online.
+- **[FR-10]** View quiz results and assignment scores.
+- **[FR-11]** Track personal learning progress.
+- **[FR-12]** View announcements and notifications from teachers.
+- **[FR-13]** Access personal academic history.
 
 ### 3. Teacher Functional Requirements
 
-[FR-12] Create, update, and manage course content.  
-[FR-13] Upload lessons, quizzes, and mock test questions.  
-[FR-14] Monitor student progress and performance analytics.  
-[FR-15] Review AI grading results and override scores when necessary.  
-[FR-16] Communicate with students via messaging system.  
-
+- **[FR-14]** Log in and manage assigned courses.
+- **[FR-15]** Create, update, and delete quizzes and assignments.
+- **[FR-16]** Grade student submissions.
+- **[FR-17]** View student performance and progress.
+- **[FR-18]** Send announcements and notifications to students.
+- **[FR-19]** Communicate with students through the system.
 
 ### 4. Parent Functional Requirements
 
-[FR-17] View child’s learning progress and test results.  
-[FR-18] Receive alerts when the student performs poorly or misses milestones.  
-[FR-19] Access AI-generated marking reports for transparency.  
-
+- **[FR-20]** Log in to the parent portal.
+- **[FR-21]** View assigned student academic performance.
+- **[FR-22]** Monitor quiz results and assignment scores.
+- **[FR-23]** Receive notifications about student progress and activities.
 
 ### 5. Manager Functional Requirements
 
-[FR-20] Review and approve courses created by teachers.  
-[FR-21] Monitor course quality and content statistics.  
-[FR-22] Manage academic standards and curriculum alignment.  
-
+- **[FR-24]** Manage courses and academic programs.
+- **[FR-25]** Assign teachers to courses.
+- **[FR-26]** View overall academic statistics and reports.
+- **[FR-27]** Monitor system usage and learning outcomes.
 
 ### 6. Admin Functional Requirements
 
-[FR-23] Manage user accounts (add, update, block, unblock).  
-[FR-24] Monitor system activities and system logs.  
-[FR-25] Track financial transactions and export revenue reports.  
-[FR-26] Configure system settings and backup data.  
+- **[FR-28]** Manage user accounts (create, update, delete).
+- **[FR-29]** Assign roles (admin, manager, teacher, student, parent).
+- **[FR-30]** Manage system-wide settings.
+- **[FR-31]** Monitor system activity and access logs.
 
+## System Architecture
 
+- **Backend Framework:** FastAPI  
+- **Database ORM:** SQLAlchemy  
+- **Template Engine:** Jinja2  
+- **Authentication:** Role-based access control using dependencies  
+- **Architecture Style:** Router-based modular architecture  
 
+## Project Structure
 
